@@ -1,0 +1,45 @@
+package com.example.ejercsesiones1012.security;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.web.SecurityFilterChain;
+
+@Configuration
+@EnableWebSecurity
+public class WebSecurityConfig {
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http.authorizeRequests()
+                .requestMatchers("/hola").permitAll()
+                .requestMatchers("/laptops/new").hasRole("ADMIN")
+                .anyRequest().authenticated()
+                .and()
+                .formLogin()
+                .and()
+                .httpBasic();
+        return http.build();
+    }
+
+
+    @Bean
+    public InMemoryUserDetailsManager userDetailsService() {
+        InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
+        manager.createUser(User.withDefaultPasswordEncoder()
+                .username("user")
+                .password("userPass")
+                .roles("USER")
+                .build());
+        manager.createUser(User.withDefaultPasswordEncoder()
+                .username("admin")
+                .password("adminPass")
+                .roles("USER", "ADMIN")
+                .build());
+        return manager;
+    }
+
+
+}
